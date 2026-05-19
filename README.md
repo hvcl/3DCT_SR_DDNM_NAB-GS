@@ -1,7 +1,7 @@
 # Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians
 
 <div>
-[![arXiv](https://img.shields.io/badge/arXiv-2508.15151-b31b1b?style=for-the-badge&logo=arxiv)](https://arxiv.org/abs/2508.15151)
+Paper link (https://arxiv.org/abs/2508.15151)
 </div>
 
 ## Overview
