@@ -1,11 +1,12 @@
 # Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians
 
-<div align="center">
+<div>
 [![arXiv](https://img.shields.io/badge/arXiv-2508.15151-b31b1b?style=for-the-badge&logo=arxiv)](https://arxiv.org/abs/2508.15151)
+</div>
 
 ## Overview
 
-<div align="center">
+<div>
   <img src="main_figure.png" alt="Method Overview" width="100%"/>
   <br>
   <em><b>Figure 1.</b> Overview of our framework. (a) LR projection SR using diffusion model: A pre-trained diffusion model with 2D X-ray data is employed within the DDNM to
