@@ -1,34 +1,16 @@
 # Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians
 
 <div align="center">
-
-[![MICCAI 2026](https://img.shields.io/badge/MICCAI-2026%20Early%20Accept-brightgreen?style=for-the-badge)](https://conferences.miccai.org/2026/)
 [![arXiv](https://img.shields.io/badge/arXiv-2508.15151-b31b1b?style=for-the-badge&logo=arxiv)](https://arxiv.org/abs/2508.15151)
-[![Code](https://img.shields.io/badge/Code-Coming%20Soon-blue?style=for-the-badge&logo=github)](https://github.com)
-[![Korea University](https://img.shields.io/badge/Korea%20University-HVCL-8B0000?style=for-the-badge)](https://hvcl.korea.ac.kr)
-
-**Jeonghyun Noh\* · Hyun-Jic Oh\* · Won-Ki Jeong†**
-
-*Korea University &nbsp;|&nbsp; \* Equal contribution &nbsp;|&nbsp; † Corresponding author*
-
-`{wjdgus0967, hyunjic0127, wkjeong}@korea.ac.kr`
-
-</div>
-
----
-
-## TL;DR
-
-> We propose a **zero-shot 3D CT super-resolution** framework that boosts spatial resolution without any paired HR-LR training data. By leveraging a diffusion model trained on abundant 2D X-ray images to super-resolve CT projections, and then reconstructing a high-resolution 3D volume via a novel **Negative Alpha Blending 3D Gaussian Splatting (NAB-GS)**, our method achieves state-of-the-art performance at **4× upscaling** and demonstrates strong clinical potential.
-
----
 
 ## Overview
 
 <div align="center">
   <img src="main_figure.png" alt="Method Overview" width="100%"/>
   <br>
-  <em><b>Figure 1.</b> Overview of the proposed framework. (a) LR CT projections are super-resolved using a diffusion model (DDNM) trained on 2D X-ray data. (b) The resulting HR projections guide 3D CT reconstruction via NAB-GS, which jointly learns positive and negative residual Gaussian densities to reconstruct a high-fidelity HR volume.</em>
+  <em><b>Figure 1.</b> Overview of our framework. (a) LR projection SR using diffusion model: A pre-trained diffusion model with 2D X-ray data is employed within the DDNM to
+generate HR 2D CT projection images from LR counterparts. (b) 3D CT reconstruction via NAB-GS: Using both positive and negative density Gaussians, we model a signed residual field between diffusion-generated HR projections and LR counterparts. For HR volume generation, the learned residual field is added onto the upsampled LR volume.
+</em>
 </div>
 
 ---
@@ -44,74 +26,20 @@ To overcome these limitations, we propose a novel **zero-shot 3D CT SR framework
 
 ---
 
-## Method
-
-### Stage 1 — LR Projection SR using Diffusion Model
-
-<div align="center">
-  <img src="main_figure.png" alt="Stage 1" width="80%"/>
-  <br>
-  <em>Stage 1: A 2D diffusion model trained on X-ray data super-resolves LR CT projections via the DDNM (Denoising Diffusion Null-space Model) framework.</em>
-</div>
-
-- Given an LR CT volume, **multi-view LR projections** are generated via volume projection.
-- A **diffusion model** pre-trained on large-scale 2D X-ray datasets is applied to each projection.
-- The DDNM process iteratively refines the noisy estimate $\mathbf{x}_t$, enforcing data consistency through the null-space decomposition:
-
-$$\hat{\mathbf{x}}_{0|t} = (\mathbf{I} - \mathbf{A}^\dagger \mathbf{A}) \mathbf{x}_{0|t} + \mathbf{A}^\dagger \mathbf{y}$$
-
-where $\mathbf{y}$ is the LR projection (measurement), $\mathbf{A}$ is the degradation operator, and $\mathbf{A}^\dagger$ is its pseudo-inverse.
-
-- The resulting **HR projections** serve as 2D priors for the subsequent 3D reconstruction stage.
-
----
-
-### Stage 2 — 3D CT Reconstruction via NAB-GS
-
-The core idea is to learn a **signed residual field** between the diffusion-generated HR projections and the projections of the upsampled LR volume, using 3D Gaussian Splatting extended with a novel **Negative Alpha Blending** mechanism.
-
-#### Key Components
-
-| Component | Description |
-|---|---|
-| **CT Space Radiative Gaussian** | 3D Gaussians initialized in CT space and transformed to world space for X-ray rendering |
-| **Negative Alpha Blending (NAB)** | Relaxes the non-negativity constraint of standard 3DGS, allowing Gaussians to carry negative density for signed residual learning |
-| **Adaptive Control** | Dynamically adjusts Gaussian density and coverage during optimization |
-| **X-ray Rasterizer** | Renders residual projections from Gaussians; combined with upsampled LR projections for image residual learning ($\mathcal{L}_\text{recon}$) |
-| **Voxelizer** | Converts Gaussian representation to voxel grid for volume residual learning ($\mathcal{L}_\text{tv}$) |
-
-#### Positive & Negative Gaussians
-
-Standard 3D Gaussian Splatting enforces **non-negative opacity**. In CT SR, the residual between HR and LR can be **positive or negative** depending on local structure. NAB-GS explicitly models:
-
-- 🔵 **Positive density Gaussians** — regions where the HR volume has higher attenuation than the upsampled LR
-- 🔴 **Negative density Gaussians** — regions where LR over-estimates attenuation
-
-#### HR Volume Generation
-
-$$\text{Output HR Volume} = \text{Clipping}(\text{Max}(0, x)) \Big( \text{Learned Residual Field} + \text{Upsampled LR Volume} \Big)$$
-
----
 
 ## Results
 
 ### Quantitative Comparison
 
-Results on two public CT datasets at **4× super-resolution**:
+| Method | UHRCT 4× PSNR↑ | UHRCT 4× SSIM↑ | UHRCT 8× PSNR↑ | UHRCT 8× SSIM↑ | MELA 4× PSNR↑ | MELA 4× SSIM↑ | MELA 8× PSNR↑ | MELA 8× SSIM↑ |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Trilinear | 24.56 | <u>0.8877</u> | 21.14 | <u>0.8125</u> | 33.64 | <u>0.9472</u> | 30.27 | <u>0.9063</u> |
+| Cubic | 24.61 | 0.8783 | <u>21.46</u> | 0.8013 | 33.55 | 0.9431 | <u>30.49</u> | 0.9005 |
+| NeRF | 20.86 | 0.6745 | 18.92 | 0.5797 | 29.76 | 0.8088 | 28.73 | 0.7873 |
+| CuNeRF | <u>25.25</u> | 0.8459 | 21.04 | 0.7572 | <u>33.76</u> | 0.9096 | 30.11 | 0.8535 |
+| **Ours** | **25.42** | **0.8957** | **21.96** | **0.8172** | **34.17** | **0.9525** | **30.81** | **0.9115** |
+| Supervised (ArSSR) | 22.78 | 0.8936 | 21.10 | 0.8336 | 33.00 | 0.9658 | 30.70 | 0.9343 |
 
-| Method | Type | PSNR ↑ | SSIM ↑ | LPIPS ↓ |
-|---|---|---|---|---|
-| Trilinear Interpolation | Traditional | — | — | — |
-| ESRGAN | Supervised | — | — | — |
-| SelfSR | Zero-shot | — | — | — |
-| NeRF-based SR | Zero-shot | — | — | — |
-| **Ours (NAB-GS)** | **Zero-shot** | **Best** | **Best** | **Best** |
-
-> *Full quantitative results are available in the paper. Our method achieves **superior quantitative and qualitative performance** on both datasets.*
-
-### Qualitative Results
-
-Our framework recovers fine structural details (e.g., bone trabeculae, vessel boundaries) that zero-shot baselines fail to reconstruct, while preserving anatomical plausibility validated by clinical expert evaluation.
 
 ### Clinical Expert Evaluation
 
@@ -124,48 +52,18 @@ Expert radiologist evaluations confirm the clinical potential of our framework a
 
 ## Getting Started
 
-> **Code is coming soon!** We are preparing a clean, reproducible release. Star ⭐ this repository to get notified.
-
-### Requirements *(Planned)*
-
-```bash
-# Environment setup
-conda create -n nabgs python=3.10
-conda activate nabgs
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Pretrained Models *(Planned)*
-
-| Model | Description | Link |
-|---|---|---|
-| Diffusion Model (X-ray) | 2D projection SR prior | TBD |
-| NAB-GS | 3D reconstruction module | TBD |
-
-### Inference *(Planned)*
-
-```bash
-# Stage 1: LR projection SR
-python stage1_projection_sr.py --input_volume /path/to/lr_ct.nii.gz --output_dir ./hr_projections
-
-# Stage 2: 3D reconstruction via NAB-GS
-python stage2_nabgs_recon.py --projections ./hr_projections --output /path/to/hr_ct.nii.gz
-```
-
----
+> **Code is coming soon!**
 
 ## Citation
 
 If you find this work useful, please cite our paper:
 
 ```bibtex
-@inproceedings{noh2026zeroshot,
-  title     = {Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians},
-  author    = {Noh, Jeonghyun and Oh, Hyun-Jic and Jeong, Won-Ki},
-  booktitle = {Medical Image Computing and Computer Assisted Intervention (MICCAI)},
-  year      = {2026},
+@article{noh2025zero,
+  title={Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians},
+  author={Noh, Jeonghyun and Oh, Hyun-Jic and Jeong, Won-Ki},
+  journal={arXiv preprint arXiv:2508.15151},
+  year={2025}
 }
 ```
 
