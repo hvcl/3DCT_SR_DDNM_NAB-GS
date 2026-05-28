@@ -1,6 +1,7 @@
 # Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians
 
 <div>
+MICCAI 2026 Early Accept (Top 9%) ·
 Paper link (https://arxiv.org/abs/2508.15151)
 </div>
 
