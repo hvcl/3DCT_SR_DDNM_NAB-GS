@@ -27,8 +27,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--case-id", default="mela_0050", help="Case id passed to DDNM --path_y.")
     parser.add_argument("--scale", type=int, choices=[4, 8], required=True, help="Projection SR scale.")
     parser.add_argument("--output-name", default="", help="Output folder under <ddnm-root>/exp/image_samples.")
-    parser.add_argument("--setup", choices=["ddnm_orig", "ddnm_pas", "ddnm_fixedSteps"], default="ddnm_orig")
-    parser.add_argument("--l2thr", type=float, default=None, help="PAS threshold. Defaults: 4x=5.5, 8x=10.")
+    parser.add_argument("--setup", choices=["ddnm_orig"], default="ddnm_orig", help="Paper setting. Other internal ablations are not exposed in the release wrapper.")
     parser.add_argument("--eta", type=float, default=0.990)
     parser.add_argument("--sigma-y", type=float, default=None, help="Defaults: 4x=0.001, 8x=0.0025.")
     parser.add_argument("--clip-max", type=float, default=1.05)
@@ -110,7 +109,6 @@ def main() -> int:
         raise FileNotFoundError(args.gt_pickle)
 
     sigma_y = args.sigma_y if args.sigma_y is not None else (0.001 if args.scale == 4 else 0.0025)
-    l2thr = args.l2thr if args.l2thr is not None else (5.5 if args.scale == 4 else 10.0)
     output_name = args.output_name or f"{args.case_id}_ddnm_x{args.scale}_{args.setup}"
 
     work_dir = args.work_dir.resolve()
@@ -166,9 +164,6 @@ def main() -> int:
         cmd += ["--subset_start", str(args.subset_start)]
     if args.subset_end > 0:
         cmd += ["--subset_end", str(args.subset_end)]
-    if args.setup == "ddnm_pas":
-        cmd += ["--l2thr", str(l2thr)]
-
     env = os.environ.copy()
     env["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
     env["PYTHONPATH"] = str(ddnm_root) + os.pathsep + env.get("PYTHONPATH", "")

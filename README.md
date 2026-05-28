@@ -1,7 +1,7 @@
 # Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians
 
 <div>
-Paper link: to be updated after anonymous review.
+Paper link (https://arxiv.org/abs/2508.15151)
 </div>
 
 ## Overview
@@ -164,13 +164,6 @@ bash scripts/run_ddnm_mela_4x_example.sh
 | 4x | 4.0 | 0.990 | 0.0010 | 1.05 | `ddnm_orig` |
 | 8x | 8.0 | 0.990 | 0.0025 | 1.05 | `ddnm_orig` |
 
-PAS can be enabled with:
-
-```bash
-SETUP=ddnm_pas bash scripts/run_ddnm_mela_4x_example.sh --l2thr 5.5
-SETUP=ddnm_pas bash scripts/run_ddnm_mela_8x_example.sh --l2thr 10
-```
-
 ### Notes for GitHub Release
 
 - Do not commit diffusion checkpoints or generated DDNM outputs.
@@ -183,11 +176,11 @@ SETUP=ddnm_pas bash scripts/run_ddnm_mela_8x_example.sh --l2thr 10
 If you find this work useful, please cite our paper:
 
 ```bibtex
-@article{anonymous2026zero,
+@article{noh2025zero,
   title={Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians},
-  author={Anonymous Authors},
-  journal={Anonymous submission},
-  year={2026}
+  author={Noh, Jeonghyun and Oh, Hyun-Jic and Jeong, Won-Ki},
+  journal={arXiv preprint arXiv:2508.15151},
+  year={2025}
 }
 ```
 
@@ -195,14 +188,14 @@ If you find this work useful, please cite our paper:
 
 ## Acknowledgements
 
-This work was conducted at an anonymous institution.
+This work was conducted at the **High-performance Visual Computing Lab (HVCL), Korea University**.
 
 We gratefully acknowledge the public CT datasets used for evaluation, and the authors of DDNM, Improved Diffusion / Guided Diffusion, TIGRE, and 3D Gaussian Splatting for their foundational contributions. See `references/REFERENCES.md` for code references and citation notes.
 
 ---
 
 <div align="center">
-  <sub>© 2026 Anonymous Authors</sub>
+  <sub>© 2026 Jeonghyun Noh, Hyun-Jic Oh, Won-Ki Jeong | Korea University</sub>
   <br>
   <sub>⭐ Star this repo to stay updated on the code release!</sub>
 </div>

@@ -33,10 +33,10 @@ TIGRE is used as a CT geometry/projection reference in related preprocessing and
 If you use this code, please cite:
 
 ```bibtex
-@article{anonymous2026zero,
+@article{noh2025zero,
   title={Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians},
-  author={Anonymous Authors},
-  journal={Anonymous submission},
-  year={2026}
+  author={Noh, Jeonghyun and Oh, Hyun-Jic and Jeong, Won-Ki},
+  journal={arXiv preprint arXiv:2508.15151},
+  year={2025}
 }
 ```
