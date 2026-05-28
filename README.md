@@ -76,11 +76,9 @@ references/
 
 ### DDNM Model Checkpoint
 
-The diffusion checkpoint is too large for GitHub. We recommend creating this Hugging Face model repository:
+The diffusion checkpoint is too large for GitHub. The DDNM projection-prior checkpoint is hosted on Hugging Face:
 
-```text
-<hf-username-or-org>/ddnm-xray512-ct-projection-prior
-```
+https://huggingface.co/Hyun-Jic/ddnm-xray512-ct-projection-prior
 
 Use `apache-2.0` as the Hugging Face model license to match this repository's Apache-2.0 release license.
 

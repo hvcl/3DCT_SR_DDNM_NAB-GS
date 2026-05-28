@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 
 
-DEFAULT_HF_REPO = "YOUR_HF_USERNAME/ddnm-xray512-ct-projection-prior"
+DEFAULT_HF_REPO = "Hyun-Jic/ddnm-xray512-ct-projection-prior"
 DEFAULT_MODEL_FILE = "ema_0.9999_620000.pt"
 SIDE_RELATIVE_PATH = Path("exp/logs/CheX-ray14_CheXpert_512x512-2gb/ema_0.9999_620000.pt")
 
