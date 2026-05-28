@@ -1,7 +1,7 @@
 # Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians
 
 <div>
-Paper link (https://arxiv.org/abs/2508.15151)
+Paper link: to be updated after anonymous review.
 </div>
 
 ## Overview
@@ -53,18 +53,141 @@ Expert radiologist evaluations confirm the clinical potential of our framework a
 
 ## Getting Started
 
-> **Code is coming soon!**
+This repository contains the release-facing entry points for our zero-shot CT SR pipeline. The DDNM projection-prior stage is prepared as a thin wrapper around the development DDNM repository, so the heavy diffusion model checkpoint can live on Hugging Face instead of GitHub.
+
+### Repository Layout
+
+```text
+ddnm_inference/
+  run_ddnm_projection_sr.py          # .npy projection stack -> DDNM-compatible run
+  requirements-ddnm-wrapper.txt
+scripts/
+  run_ddnm_mela_4x_example.sh        # example MELA 0050 4x command
+  run_ddnm_mela_8x_example.sh        # example MELA 0050 8x command
+examples/mela_0050/
+  mela_0050_projection_4x_128x128.npy
+  mela_0050_projection_8x_64x64.npy
+hf_model_card/
+  README.md                          # suggested Hugging Face model card
+references/
+  REFERENCES.md
+```
+
+### DDNM Model Checkpoint
+
+The diffusion checkpoint is too large for GitHub. We recommend creating this Hugging Face model repository:
+
+```text
+<hf-username-or-org>/ddnm-xray512-ct-projection-prior
+```
+
+Use `apache-2.0` as the Hugging Face model license to match this repository's Apache-2.0 release license.
+
+Upload the checkpoint as:
+
+```text
+ema_0.9999_620000.pt
+```
+
+The model-card draft is available at `hf_model_card/README.md`.
+
+### Inputs
+
+The DDNM wrapper accepts one projection stack as `.npy`:
+
+```text
+[N, H, W] float32
+```
+
+For the provided MELA example:
+
+```text
+examples/mela_0050/mela_0050_projection_4x_128x128.npy  # [100, 128, 128]
+examples/mela_0050/mela_0050_projection_8x_64x64.npy    # [100, 64, 64]
+```
+
+The wrapper converts the `.npy` stack into the pickle structure expected by the DDNM code and passes it through `--degraded_path`. The high-resolution GT pickle is still required by the original DDNM dataset loader for projection count, normalization, and optional evaluation.
+
+### Run MELA 4x DDNM
+
+```bash
+pip install -r ddnm_inference/requirements-ddnm-wrapper.txt
+
+DDNM_ROOT=/path/to/DDNM \
+GT_PICKLE=/path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
+GPU=0 \
+bash scripts/run_ddnm_mela_4x_example.sh
+```
+
+To check paths and the resolved command without running:
+
+```bash
+DDNM_ROOT=/path/to/DDNM \
+GT_PICKLE=/path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
+bash scripts/run_ddnm_mela_4x_example.sh --dry-run
+```
+
+Expected output:
+
+```text
+<DDNM_ROOT>/exp/image_samples/mela_0050_ddnm_x4_ddnm_orig/
+  pred_png/
+  pred_npy/
+  whole.npy
+  configs.yml
+  run.log
+```
+
+### Run MELA 8x DDNM
+
+```bash
+DDNM_ROOT=/path/to/DDNM \
+GT_PICKLE=/path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
+GPU=0 \
+bash scripts/run_ddnm_mela_8x_example.sh
+```
+
+### Use a Local Checkpoint Instead of Hugging Face
+
+```bash
+MODEL_CHECKPOINT=/path/to/ema_0.9999_620000.pt \
+DDNM_ROOT=/path/to/DDNM \
+GT_PICKLE=/path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
+GPU=0 \
+bash scripts/run_ddnm_mela_4x_example.sh
+```
+
+### DDNM Parameters Used in the Paper Experiments
+
+| Scale | `deg_scale` | `eta` | `sigma_y` | `clip_max` | default setup |
+|---|---:|---:|---:|---:|---|
+| 4x | 4.0 | 0.990 | 0.0010 | 1.05 | `ddnm_orig` |
+| 8x | 8.0 | 0.990 | 0.0025 | 1.05 | `ddnm_orig` |
+
+PAS can be enabled with:
+
+```bash
+SETUP=ddnm_pas bash scripts/run_ddnm_mela_4x_example.sh --l2thr 5.5
+SETUP=ddnm_pas bash scripts/run_ddnm_mela_8x_example.sh --l2thr 10
+```
+
+### Notes for GitHub Release
+
+- Do not commit diffusion checkpoints or generated DDNM outputs.
+- Keep example `.npy` files small enough for GitHub. The included MELA 0050 projection examples are intended as smoke-test inputs.
+- The wrapper assumes the existing DDNM codebase is available separately through `DDNM_ROOT`.
+- The wrapper creates a DDNM-compatible degraded pickle under `ddnm_work/inputs/`.
 
 ## Citation
 
 If you find this work useful, please cite our paper:
 
 ```bibtex
-@article{noh2025zero,
+@article{anonymous2026zero,
   title={Zero-shot CT Super-Resolution using Diffusion-based 2D Projection Priors and Signed 3D Gaussians},
-  author={Noh, Jeonghyun and Oh, Hyun-Jic and Jeong, Won-Ki},
-  journal={arXiv preprint arXiv:2508.15151},
-  year={2025}
+  author={Anonymous Authors},
+  journal={Anonymous submission},
+  year={2026}
 }
 ```
 
@@ -72,14 +195,14 @@ If you find this work useful, please cite our paper:
 
 ## Acknowledgements
 
-This work was conducted at the **High-performance Visual Computing Lab (HVCL), Korea University**.
+This work was conducted at an anonymous institution.
 
-We gratefully acknowledge the public CT datasets used for evaluation, and the authors of DDNM and 3D Gaussian Splatting for their foundational contributions.
+We gratefully acknowledge the public CT datasets used for evaluation, and the authors of DDNM, Improved Diffusion / Guided Diffusion, TIGRE, and 3D Gaussian Splatting for their foundational contributions. See `references/REFERENCES.md` for code references and citation notes.
 
 ---
 
 <div align="center">
-  <sub>© 2026 Jeonghyun Noh, Hyun-Jic Oh, Won-Ki Jeong | Korea University</sub>
+  <sub>© 2026 Anonymous Authors</sub>
   <br>
   <sub>⭐ Star this repo to stay updated on the code release!</sub>
 </div>

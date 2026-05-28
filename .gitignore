@@ -175,6 +175,23 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Project artifacts
+ddnm_work/
+exp/
+outputs/
+checkpoints/
+models/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.nii
+*.nii.gz
+
+# Keep lightweight example npy files, but ignore generated arrays elsewhere.
+*.npy
+!examples/**/*.npy
+
 # pytype static type analyzer
 .pytype/
 
