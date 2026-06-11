@@ -1,0 +1,40 @@
+DSD: 1500.0
+DSO: 1000.0
+accuracy: 0.5
+convert: false
+dDetector:
+- 4.
+- 4.
+dVoxel:
+- 2.
+- 2.
+- 2.
+filter: null
+mode: cone
+nDetector:
+- 128
+- 128
+nVoxel:
+- 128
+- 128
+- 128
+lrVol:
+- 64
+- 64
+- 64
+noise: 0
+normalize: true
+numTrain: 100 # 100
+numVal: 100 # 100
+offDetector:
+- 0
+- 0
+offOrigin:
+- 0
+- 0
+- 0
+randomAngle: false
+rescale_intercept: 0.0
+rescale_slope: 1.0
+startAngle: 0.0
+totalAngle: 180.0
