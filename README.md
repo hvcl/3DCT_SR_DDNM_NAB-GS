@@ -163,12 +163,94 @@ bash scripts/run_ddnm_mela_4x_example.sh
 | 4x | 4.0 | 0.990 | 0.0010 | 1.05 | `ddnm_orig` |
 | 8x | 8.0 | 0.990 | 0.0025 | 1.05 | `ddnm_orig` |
 
+
 ### Notes for GitHub Release
 
 - Do not commit diffusion checkpoints or generated DDNM outputs.
 - Keep example `.npy` files small enough for GitHub. The included MELA 0050 projection examples are intended as smoke-test inputs.
 - The wrapper assumes the existing DDNM codebase is available separately through `DDNM_ROOT`.
 - The wrapper creates a DDNM-compatible degraded pickle under `ddnm_work/inputs/`.
+
+---
+
+## 3D Reconstruction via NAB-GS
+
+After generating HR projections with the DDNM stage above, the NAB-GS stage reconstructs the HR 3D volume. The pipeline runs in four sequential steps.
+
+### Pipeline Overview
+
+```text
+generateData.py        # 1. Build TIGRE projection pickle from a .nii.gz volume
+DDNM_replace.py        # 2. Replace LR projections with DDNM-upsampled HR projections
+initialize_pcd.py      # 3. Initialize signed 3D Gaussians (FDK point cloud)
+train_prelu.py         # 4. Train NAB-GS to reconstruct the HR volume
+```
+
+### Step 1 — Generate Projection Data (`generateData.py`)
+
+Converts a CT volume (`.nii.gz`) into the TIGRE-format projection pickle used by the rest of the pipeline. Run this for both the GT/HR setup and the LR setup using the matching config under `./data/config/`.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python generateData.py \
+    --ctName mela_0050_rmbed \
+    --config up512 \
+    --mode test512_clamp \
+    --outputName mela_0050
+```
+
+- `--ctName`  : volume name under `./data/<ctName>.nii.gz`
+- `--config`  : geometry config under `./data/config/<config>.yml`
+- `--outputName` : output pickle written to `./data/pickle_data/<outputName>.pickle`
+
+### Step 2 — Replace Projections with DDNM Output (`DDNM_replace.py`)
+
+Updates the projection pickle so the training stage uses the diffusion-upsampled HR projections. It reads `whole.npy` from each DDNM output folder, rescales it back to the LR intensity range, and writes a new pickle with the chosen suffix.
+
+```bash
+python DDNM_replace.py \
+    --pickle_folder ./data/pickle_data/CASE_UP/ \
+    --pickle_folder_lr ./data/pickle_data/CASE_GT_LR/ \
+    --ddnm_folder /path/to/DDNM/exp/image_samples/ \
+    --new_pickle_folder ./data/pickle_data/CASE_DDNM/ \
+    --prefix DDNM
+```
+
+- `--pickle_folder`     : HR (upsampled) pickle folder
+- `--pickle_folder_lr`  : LR pickle folder (used for intensity rescaling)
+- `--ddnm_folder`       : folder of DDNM outputs; each subfolder must contain `whole.npy`
+- `--new_pickle_folder` : output folder for the updated pickle
+- `--prefix`            : suffix appended to the new pickle filename
+
+### Step 3 — Initialize Gaussians (`initialize_pcd.py`)
+
+Creates the initial signed Gaussian point cloud via FDK reconstruction. The result (`init_*.npy`) is consumed by the training stage.
+
+```bash
+python initialize_pcd.py \
+    --data ./data/pickle_data/CASE_DDNM/mela_0050_DDNM.pickle \
+    --output ./data/pickle_data/CASE_DDNM/init_mela_0050.npy
+```
+
+- `--data`     : path to the projection pickle from Step 2
+- `--output`   : output point-cloud path (defaults to an `init_*.npy` next to the data if omitted)
+- `--evaluate` : optional flag, only for debugging against a GT volume
+
+### Step 4 — Train NAB-GS (`train_prelu.py`)
+
+Trains the Negative Alpha Blending Gaussians to reconstruct the HR volume, modeling positive and negative densities for the signed residual field.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_prelu.py \
+    -s "final generate data path"
+    --model_path "your output path"
+```
+
+- `-s` / `--source_path` : projection pickle (with the initialized point cloud from Step 3)
+- --model_path`          : output directory for checkpoints and reconstructed volume
+
+Checkpoints and evaluation are saved at the iterations set by `--save_iterations` / `--test_iterations` (default every 5k up to 30k).
+
+
 
 ## Citation
 
