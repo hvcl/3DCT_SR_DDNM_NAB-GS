@@ -18,9 +18,9 @@ The X-ray projection prior was trained using an improved-diffusion style 512x512
 
 ## 3D Gaussian Splatting
 
-- Code: https://github.com/graphdeco-inria/gaussian-splatting
+- Code: [https://github.com/graphdeco-inria/gaussian-splatting](https://github.com/ruyi-zha/r2_gaussian)
 
-NAB-GS builds on the general 3D Gaussian representation idea and adapts it to signed residual CT reconstruction.
+NAB-GS builds on the R2 3D Gaussian representation idea and adapts it to signed residual CT reconstruction.
 
 ## TIGRE
 
