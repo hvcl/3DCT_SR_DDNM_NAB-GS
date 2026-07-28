@@ -1,2 +1,12 @@
 numpy
 huggingface_hub
+torch
+torchvision
+PyYAML
+scipy
+tqdm
+Pillow
+opencv-python
+matplotlib
+requests
+tensorboard

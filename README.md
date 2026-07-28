@@ -54,14 +54,20 @@ Expert radiologist evaluations confirm the clinical potential of our framework a
 
 ## Getting Started
 
-This repository contains the release-facing entry points for our zero-shot CT SR pipeline. The DDNM projection-prior stage is prepared as a thin wrapper around the development DDNM repository, so the heavy diffusion model checkpoint can live on Hugging Face instead of GitHub.
+This repository contains the release-facing entry points for our zero-shot CT SR pipeline. It includes the DDNM projection-prior inference implementation used for the paper, including `main_miccai26.py`. The diffusion checkpoint is hosted on Hugging Face rather than GitHub.
 
 ### Repository Layout
 
 ```text
 ddnm_inference/
   run_ddnm_projection_sr.py          # .npy projection stack -> DDNM-compatible run
-  requirements-ddnm-wrapper.txt
+  requirements-ddnm-wrapper.txt      # dependencies for the released inference code
+configs/
+  MELA.yml                           # DDNM inference configuration
+datasets/                            # MELA/UHRCT dataset adapters
+functions/                           # DDNM operators and sampling routines
+guided_diffusion/                    # diffusion-model implementation
+main_miccai26.py                     # released DDNM inference entry point
 scripts/
   run_ddnm_mela_4x_example.sh        # example MELA 0050 4x command
   run_ddnm_mela_8x_example.sh        # example MELA 0050 8x command
@@ -73,6 +79,26 @@ hf_model_card/
 references/
   REFERENCES.md
 ```
+
+### Full DDNM Inference Code
+
+The complete released DDNM inference path is available directly in this repository. Install the dependencies and run `main_miccai26.py` from the repository root. For a MELA 4x example with the provided wrapper-generated inputs:
+
+```bash
+pip install -r ddnm_inference/requirements-ddnm-wrapper.txt
+
+python main_miccai26.py --ni \
+  --config configs/MELA.yml \
+  --path_y mela_0050 \
+  --degraded_path /path/to/mela_0050_x4_degraded_from_npy.pickle \
+  --gt_path /path/to/mela_0050_rmbed.pickle \
+  --deg sr_averagepooling --deg_scale 4 \
+  --eta 0.990 --sigma_y 0.001 --clip_max 1.05 \
+  --setup ddnm_orig --ckpt SIDE \
+  -i mela_0050_ddnm_x4_ddnm_orig
+```
+
+For convenience, the scripts under `scripts/` use `ddnm_inference/run_ddnm_projection_sr.py` to convert a projection `.npy` stack into the required degraded pickle and resolve the Hugging Face checkpoint automatically. They can now be run with `DDNM_ROOT` set to this repository itself.
 
 ### DDNM Model Checkpoint
 
