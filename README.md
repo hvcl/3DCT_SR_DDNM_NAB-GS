@@ -54,41 +54,34 @@ Expert radiologist evaluations confirm the clinical potential of our framework a
 
 ## Getting Started
 
-This repository contains the release-facing entry points for our zero-shot CT SR pipeline. It includes the DDNM projection-prior inference implementation used for the paper, including `main_miccai26.py`. The diffusion checkpoint is hosted on Hugging Face rather than GitHub.
+This repository contains the release-facing entry points for our zero-shot CT SR pipeline. `NAB-GS/` and `DDNM/` are organized as independent components. The DDNM diffusion checkpoint is hosted on Hugging Face rather than GitHub.
 
 ### Repository Layout
 
 ```text
-ddnm_inference/
-  run_ddnm_projection_sr.py          # .npy projection stack -> DDNM-compatible run
-  requirements-ddnm-wrapper.txt      # dependencies for the released inference code
-configs/
-  MELA.yml                           # DDNM inference configuration
-datasets/                            # MELA/UHRCT dataset adapters
-functions/                           # DDNM operators and sampling routines
-guided_diffusion/                    # diffusion-model implementation
-main_miccai26.py                     # released DDNM inference entry point
-scripts/
-  run_ddnm_mela_4x_example.sh        # example MELA 0050 4x command
-  run_ddnm_mela_8x_example.sh        # example MELA 0050 8x command
-examples/mela_0050/
-  mela_0050_projection_4x_128x128.npy
-  mela_0050_projection_8x_64x64.npy
-hf_model_card/
-  README.md                          # suggested Hugging Face model card
-references/
-  REFERENCES.md
+NAB-GS/                               # NAB-GS implementation
+DDNM/
+  main_miccai26.py                    # released DDNM inference entry point
+  configs/MELA.yml                    # DDNM inference configuration
+  datasets/                            # MELA/UHRCT dataset adapters
+  functions/                           # DDNM operators and sampling routines
+  guided_diffusion/                    # diffusion-model implementation
+  ddnm_inference/                      # .npy projection wrapper and dependencies
+  scripts/                             # MELA 4x and 8x example commands
+  examples/mela_0050/                  # lightweight example projections
+  hf_model_card/                       # suggested Hugging Face model card
+  references/
 ```
 
 ### Full DDNM Inference Code
 
-The complete released DDNM inference path is available directly in this repository. Install the dependencies and run `main_miccai26.py` from the repository root. For a MELA 4x example with the provided wrapper-generated inputs:
+The complete released DDNM inference path is under `DDNM/`. Install the dependencies and run `DDNM/main_miccai26.py` from the repository root.
 
 ```bash
-pip install -r ddnm_inference/requirements-ddnm-wrapper.txt
+pip install -r DDNM/ddnm_inference/requirements-ddnm-wrapper.txt
 
-python main_miccai26.py --ni \
-  --config configs/MELA.yml \
+python DDNM/main_miccai26.py --ni \
+  --config DDNM/configs/MELA.yml \
   --path_y mela_0050 \
   --degraded_path /path/to/mela_0050_x4_degraded_from_npy.pickle \
   --gt_path /path/to/mela_0050_rmbed.pickle \
@@ -98,7 +91,7 @@ python main_miccai26.py --ni \
   -i mela_0050_ddnm_x4_ddnm_orig
 ```
 
-For convenience, the scripts under `scripts/` use `ddnm_inference/run_ddnm_projection_sr.py` to convert a projection `.npy` stack into the required degraded pickle and resolve the Hugging Face checkpoint automatically. They can now be run with `DDNM_ROOT` set to this repository itself.
+For convenience, `DDNM/scripts/` uses `DDNM/ddnm_inference/run_ddnm_projection_sr.py` to convert a projection `.npy` stack into the required degraded pickle and resolve the Hugging Face checkpoint automatically. Set `DDNM_ROOT` to the `DDNM/` directory.
 
 ### DDNM Model Checkpoint
 
@@ -114,7 +107,7 @@ Upload the checkpoint as:
 ema_0.9999_620000.pt
 ```
 
-The model-card draft is available at `hf_model_card/README.md`.
+The model-card draft is available at `DDNM/hf_model_card/README.md`.
 
 ### Inputs
 
@@ -127,8 +120,8 @@ The DDNM wrapper accepts one projection stack as `.npy`:
 For the provided MELA example:
 
 ```text
-examples/mela_0050/mela_0050_projection_4x_128x128.npy  # [100, 128, 128]
-examples/mela_0050/mela_0050_projection_8x_64x64.npy    # [100, 64, 64]
+DDNM/examples/mela_0050/mela_0050_projection_4x_128x128.npy  # [100, 128, 128]
+DDNM/examples/mela_0050/mela_0050_projection_8x_64x64.npy    # [100, 64, 64]
 ```
 
 The wrapper converts the `.npy` stack into the pickle structure expected by the DDNM code and passes it through `--degraded_path`. The high-resolution GT pickle is still required by the original DDNM dataset loader for projection count, normalization, and optional evaluation.
@@ -136,12 +129,12 @@ The wrapper converts the `.npy` stack into the pickle structure expected by the 
 ### Run MELA 4x DDNM
 
 ```bash
-pip install -r ddnm_inference/requirements-ddnm-wrapper.txt
+pip install -r DDNM/ddnm_inference/requirements-ddnm-wrapper.txt
 
 DDNM_ROOT=/path/to/DDNM \
 GT_PICKLE=/path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
 GPU=0 \
-bash scripts/run_ddnm_mela_4x_example.sh
+bash DDNM/scripts/run_ddnm_mela_4x_example.sh
 ```
 
 To check paths and the resolved command without running:
@@ -149,7 +142,7 @@ To check paths and the resolved command without running:
 ```bash
 DDNM_ROOT=/path/to/DDNM \
 GT_PICKLE=/path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
-bash scripts/run_ddnm_mela_4x_example.sh --dry-run
+bash DDNM/scripts/run_ddnm_mela_4x_example.sh --dry-run
 ```
 
 Expected output:
@@ -169,7 +162,7 @@ Expected output:
 DDNM_ROOT=/path/to/DDNM \
 GT_PICKLE=/path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
 GPU=0 \
-bash scripts/run_ddnm_mela_8x_example.sh
+bash DDNM/scripts/run_ddnm_mela_8x_example.sh
 ```
 
 ### Use a Local Checkpoint Instead of Hugging Face
@@ -179,7 +172,7 @@ MODEL_CHECKPOINT=/path/to/ema_0.9999_620000.pt \
 DDNM_ROOT=/path/to/DDNM \
 GT_PICKLE=/path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
 GPU=0 \
-bash scripts/run_ddnm_mela_4x_example.sh
+bash DDNM/scripts/run_ddnm_mela_4x_example.sh
 ```
 
 ### DDNM Parameters Used in the Paper Experiments
@@ -297,7 +290,7 @@ If you find this work useful, please cite our paper:
 
 This work was conducted at the **High-performance Visual Computing Lab (HVCL), Korea University**.
 
-We gratefully acknowledge the public CT datasets used for evaluation, and the authors of DDNM, Improved Diffusion / Guided Diffusion, TIGRE, and 3D Gaussian Splatting for their foundational contributions. See `references/REFERENCES.md` for code references and citation notes.
+We gratefully acknowledge the public CT datasets used for evaluation, and the authors of DDNM, Improved Diffusion / Guided Diffusion, TIGRE, and 3D Gaussian Splatting for their foundational contributions. See `DDNM/references/REFERENCES.md` for code references and citation notes.
 
 ---
 

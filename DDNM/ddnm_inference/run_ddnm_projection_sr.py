@@ -27,7 +27,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--case-id", default="mela_0050", help="Case id passed to DDNM --path_y.")
     parser.add_argument("--scale", type=int, choices=[4, 8], required=True, help="Projection SR scale.")
     parser.add_argument("--output-name", default="", help="Output folder under <ddnm-root>/exp/image_samples.")
-    parser.add_argument("--setup", choices=["ddnm_orig"], default="ddnm_orig", help="Paper setting. Other internal ablations are not exposed in the release wrapper.")
+    parser.add_argument("--setup", choices=["ddnm_orig"], default="ddnm_orig", help="DDNM setting used for the paper experiments.")
     parser.add_argument("--eta", type=float, default=0.990)
     parser.add_argument("--sigma-y", type=float, default=None, help="Defaults: 4x=0.001, 8x=0.0025.")
     parser.add_argument("--clip-max", type=float, default=1.05)

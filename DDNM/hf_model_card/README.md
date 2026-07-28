@@ -84,11 +84,11 @@ The GitHub wrapper expects this file by default.
 ```bash
 pip install huggingface_hub
 
-python ddnm_inference/run_ddnm_projection_sr.py \
+python DDNM/ddnm_inference/run_ddnm_projection_sr.py \
   --hf-model-repo Hyun-Jic/ddnm-xray512-ct-projection-prior \
   --hf-model-file ema_0.9999_620000.pt \
   --ddnm-root /path/to/DDNM \
-  --input-npy examples/mela_0050/mela_0050_projection_4x_128x128.npy \
+  --input-npy DDNM/examples/mela_0050/mela_0050_projection_4x_128x128.npy \
   --gt-pickle /path/to/MELA_GT_512_rmbed/mela_0050_rmbed.pickle \
   --case-id mela_0050 \
   --scale 4

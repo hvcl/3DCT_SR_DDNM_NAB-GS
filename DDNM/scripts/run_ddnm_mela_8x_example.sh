@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DDNM_ROOT="${DDNM_ROOT:-}"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+DDNM_ROOT="${DDNM_ROOT:-$REPO_ROOT/DDNM}"
 GPU="${GPU:-0}"
 CASE_ID="${CASE_ID:-mela_0050}"
 SETUP="ddnm_orig"
 MODEL_CHECKPOINT="${MODEL_CHECKPOINT:-}"
 GT_PICKLE="${GT_PICKLE:-}"
-INPUT_NPY="${INPUT_NPY:-$REPO_ROOT/examples/mela_0050/mela_0050_projection_8x_64x64.npy}"
+INPUT_NPY="${INPUT_NPY:-$REPO_ROOT/DDNM/examples/mela_0050/mela_0050_projection_8x_64x64.npy}"
 
 MODEL_ARGS=()
 if [[ -n "$MODEL_CHECKPOINT" ]]; then
@@ -25,7 +25,7 @@ if [[ -z "$GT_PICKLE" ]]; then
   exit 2
 fi
 
-python "$REPO_ROOT/ddnm_inference/run_ddnm_projection_sr.py" \
+python "$REPO_ROOT/DDNM/ddnm_inference/run_ddnm_projection_sr.py" \
   --ddnm-root "$DDNM_ROOT" \
   --input-npy "$INPUT_NPY" \
   --gt-pickle "$GT_PICKLE" \
